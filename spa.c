@@ -11,11 +11,14 @@ int main(int argc, char **argv)
     float lat = 51.836;
     long int epoch = 0;
     float timezone =2;
-    while ((c = getopt (argc, argv, "z")) != -1)
+    while ((c = getopt (argc, argv, "n:e:")) != -1)
         switch (c)
         {
-            case 'z':
-                printf("z\n");
+            case 'e':
+                lng = atoi(optarg);
+                break;
+            case 'n':
+                lat = atoi(optarg);
                 break;
             default:
                 abort();
