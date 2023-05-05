@@ -42,11 +42,11 @@ int main(int argc, char **argv)
         double sunRadVec = (1.000001018*(1-eccentEarth*eccentEarth))/(1+eccentEarth*cos(SunTrueAnom));
         double sunAppLong = SunTrueLong+(-0.00569-0.00478*sin((125.04-1934.136*julcent)/RADPI))/RADPI;
         double meanOblElip = (23+(26+((21.448-julcent*(46.815+julcent*(0.00059-julcent*0.001813))))/60)/60)/RADPI;
+        double OblCorr = meanOblElip+(0.00256*cos((125.04-1934.136*julcent)/RADPI))/RADPI;
         //deg
-        double OblCorr = meanOblElip*RADPI+0.00256*cos((125.04-1934.136*julcent)/RADPI);
-        double sunRtAsc = atan2(cos((OblCorr/RADPI))*sin((sunAppLong)),cos((sunAppLong)))*RADPI;
-        double sunDecl = (asin(sin((OblCorr/RADPI))*sin((sunAppLong))))*RADPI;
-        double vary = tan(OblCorr/RADPI/2)*tan(OblCorr/RADPI/2);
+        double sunRtAsc = atan2(cos((OblCorr))*sin((sunAppLong)),cos((sunAppLong)))*RADPI;
+        double sunDecl = (asin(sin((OblCorr))*sin((sunAppLong))))*RADPI;
+        double vary = tan(OblCorr/2)*tan(OblCorr/2);
         double eqOfTime = (vary*sin(2*geomMeanLong)-2*eccentEarth*sin(geomMeanAnom)+4*eccentEarth*vary*sin(geomMeanAnom)*cos(2*geomMeanLong)-0.5*vary*vary*sin(4*geomMeanLong)-1.25*eccentEarth*eccentEarth*sin(2*geomMeanAnom))*4*RADPI;
 
         double trueSolTime = ((double)secofday/60+eqOfTime+4*lng);
