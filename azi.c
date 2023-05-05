@@ -51,11 +51,11 @@ int main(int argc, char **argv)
         modhelper = (int)(trueSolTime/1440);
         trueSolTime-=modhelper*1440;
         double hourangle = ((trueSolTime<0)?trueSolTime/4+180:trueSolTime/4-180)/RADPI;
-        double SolZenith = (acos(sin((lat)/RADPI)*sin((sunDecl))+cos((lat)/RADPI)*cos((sunDecl))*cos((hourangle))))*RADPI;
+        double SolZenith = (acos(sin((lat)/RADPI)*sin((sunDecl))+cos((lat)/RADPI)*cos((sunDecl))*cos((hourangle))));
 
         double solAzi = (hourangle >0)?
-            (acos(((sin((lat)/RADPI)*cos((SolZenith)/RADPI))-sin((sunDecl)))/(cos((lat)/RADPI)*sin((SolZenith)/RADPI))))*RADPI+180:
-            180-(acos(((sin((lat)/RADPI)*cos((SolZenith)/RADPI))-sin((sunDecl)))/(cos((lat)/RADPI)*sin((SolZenith)/RADPI))))*RADPI;
-        printf("%ld %lf %lf\n",(secofday+(int)(timezone*3600))%86400,90-SolZenith,solAzi);
+            (acos(((sin((lat)/RADPI)*cos((SolZenith)))-sin((sunDecl)))/(cos((lat)/RADPI)*sin((SolZenith)))))*RADPI+180:
+            180-(acos(((sin((lat)/RADPI)*cos((SolZenith)))-sin((sunDecl)))/(cos((lat)/RADPI)*sin((SolZenith)))))*RADPI;
+        printf("%ld %lf %lf\n",(secofday+(int)(timezone*3600))%86400,90-SolZenith*RADPI,solAzi);
     }
 }
