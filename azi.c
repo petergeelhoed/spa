@@ -15,10 +15,10 @@ int main(int argc, char **argv)
         switch (c)
         {
             case 'e':
-                lng = atoi(optarg);
+                lng = atof(optarg);
                 break;
             case 'n':
-                lat = atoi(optarg);
+                lat = atof(optarg);
                 break;
             default:
                 abort();
@@ -43,7 +43,6 @@ int main(int argc, char **argv)
         double sunAppLong = SunTrueLong+(-0.00569-0.00478*sin((125.04-1934.136*julcent)/RADPI))/RADPI;
         double meanOblElip = (23+(26+((21.448-julcent*(46.815+julcent*(0.00059-julcent*0.001813))))/60)/60)/RADPI;
         double OblCorr = meanOblElip+(0.00256*cos((125.04-1934.136*julcent)/RADPI))/RADPI;
-        //deg
         double sunDecl = asin(sin((OblCorr))*sin((sunAppLong)));
         double vary = tan(OblCorr/2)*tan(OblCorr/2);
         double eqOfTime = (vary*sin(2*geomMeanLong)-2*eccentEarth*sin(geomMeanAnom)+4*eccentEarth*vary*sin(geomMeanAnom)*cos(2*geomMeanLong)-0.5*vary*vary*sin(4*geomMeanLong)-1.25*eccentEarth*eccentEarth*sin(2*geomMeanAnom))*4*RADPI;
@@ -51,8 +50,8 @@ int main(int argc, char **argv)
         double trueSolTime = ((double)secofday/60+eqOfTime+4*lng);
         modhelper = (int)(trueSolTime/1440);
         trueSolTime-=modhelper*1440;
-        double hourangle = (trueSolTime<0)?trueSolTime/4+180:trueSolTime/4-180;
-        double SolZenith = (acos(sin((lat)/RADPI)*sin((sunDecl))+cos((lat)/RADPI)*cos((sunDecl))*cos((hourangle)/RADPI)))*RADPI;
+        double hourangle = ((trueSolTime<0)?trueSolTime/4+180:trueSolTime/4-180)/RADPI;
+        double SolZenith = (acos(sin((lat)/RADPI)*sin((sunDecl))+cos((lat)/RADPI)*cos((sunDecl))*cos((hourangle))))*RADPI;
 
         double solAzi = (hourangle >0)?
             (acos(((sin((lat)/RADPI)*cos((SolZenith)/RADPI))-sin((sunDecl)))/(cos((lat)/RADPI)*sin((SolZenith)/RADPI))))*RADPI+180:
