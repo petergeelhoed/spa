@@ -2,6 +2,8 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+// returns second of the day, zenith of the sun, azimuth of the sun, cos(angle of incidence)
+
 
 double RADPI=57.29577951308237993927;
 int main(int argc, char **argv) 
@@ -9,6 +11,19 @@ int main(int argc, char **argv)
     int c;
     float lng = 4.687;
     float lat = 51.836;
+
+    // panels 
+    float panazi = 210/RADPI;
+    float panzen = 10/RADPI;
+    double px = sin(panzen)*cos(panazi);
+    double py = sin(panzen)*sin(panazi);
+    double pz = cos(panzen);
+    double length = sqrt(px*px+pz*pz+py*py);
+    px /=length;
+    py /=length;
+    pz /=length;
+
+
     long int epoch = 0;
     float timezone =2;
     while ((c = getopt (argc, argv, "n:e:")) != -1)
@@ -56,6 +71,16 @@ int main(int argc, char **argv)
         double solAzi = (hourangle >0)?
             180/RADPI+(acos(((sin(lat/RADPI)*cos(SolZenith))-sin(sunDecl))/(cos(lat/RADPI)*sin(SolZenith)))):
             180/RADPI-(acos(((sin(lat/RADPI)*cos(SolZenith))-sin(sunDecl))/(cos(lat/RADPI)*sin(SolZenith))));
-        printf("%ld %lf %lf\n",(secofday+(int)(timezone*3600))%86400,90-SolZenith*RADPI,solAzi*RADPI);
+        double sx = sin(SolZenith)*cos(solAzi);
+        double sy = sin(SolZenith)*sin(solAzi);
+        double sz = cos(SolZenith);
+        length = sqrt(px*px+pz*pz+py*py);
+        sx /=length;
+        sy /=length;
+        sz /=length;
+       printf("%ld %lf %lf %lf \n",(secofday+(int)(timezone*3600))%86400,
+                90-SolZenith*RADPI,solAzi*RADPI,
+                sx*px+sy*py+sz*pz);
+
     }
 }
