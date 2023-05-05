@@ -54,8 +54,8 @@ int main(int argc, char **argv)
         double SolZenith = (acos(sin((lat)/RADPI)*sin((sunDecl))+cos((lat)/RADPI)*cos((sunDecl))*cos((hourangle))));
 
         double solAzi = (hourangle >0)?
-            (acos(((sin((lat)/RADPI)*cos((SolZenith)))-sin((sunDecl)))/(cos((lat)/RADPI)*sin((SolZenith)))))*RADPI+180:
-            180-(acos(((sin((lat)/RADPI)*cos((SolZenith)))-sin((sunDecl)))/(cos((lat)/RADPI)*sin((SolZenith)))))*RADPI;
-        printf("%ld %lf %lf\n",(secofday+(int)(timezone*3600))%86400,90-SolZenith*RADPI,solAzi);
+            180/RADPI+(acos(((sin((lat)/RADPI)*cos((SolZenith)))-sin((sunDecl)))/(cos((lat)/RADPI)*sin((SolZenith))))):
+            180/RADPI-(acos(((sin((lat)/RADPI)*cos((SolZenith)))-sin((sunDecl)))/(cos((lat)/RADPI)*sin((SolZenith)))));
+        printf("%ld %lf %lf\n",(secofday+(int)(timezone*3600))%86400,90-SolZenith*RADPI,solAzi*RADPI);
     }
 }
