@@ -26,11 +26,14 @@ int main(int argc, char **argv)
 
     long int epoch = 0;
     float timezone =2;
-    while ((c = getopt (argc, argv, "n:e:")) != -1)
+    while ((c = getopt (argc, argv, "n:e:t:")) != -1)
         switch (c)
         {
             case 'e':
                 lng = atof(optarg);
+                break;
+            case 't':
+                timezone = atof(optarg);
                 break;
             case 'n':
                 lat = atof(optarg);
