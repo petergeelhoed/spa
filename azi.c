@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     pz /=length;
 
 
-    long int epoch = 0;
+    double epoch = 0.0;
     float timezone =2;
     while ((c = getopt (argc, argv, "n:e:t:")) != -1)
         switch (c)
@@ -41,11 +41,11 @@ int main(int argc, char **argv)
             default:
                 abort();
         }
-    while ( fscanf(stdin,"%ld", &epoch) != EOF)
+    while ( fscanf(stdin,"%lf", &epoch) != EOF)
     {
 
         double julian = epoch/86400.;
-        int secofday = epoch%86400;
+        double secofday = fmod(epoch,86400);
         double julday = julian + 25569 + 2415018.5;
         double julcent = (julday - 2451545)/36525;
         int modhelper = (int)(280.46646+julcent*(36000.76983+julcent*0.0003032))/360.;
@@ -65,7 +65,7 @@ int main(int argc, char **argv)
         double vary = tan(OblCorr/2)*tan(OblCorr/2);
         double eqOfTime = (vary*sin(2*geomMeanLong)-2*eccentEarth*sin(geomMeanAnom)+4*eccentEarth*vary*sin(geomMeanAnom)*cos(2*geomMeanLong)-0.5*vary*vary*sin(4*geomMeanLong)-1.25*eccentEarth*eccentEarth*sin(2*geomMeanAnom))*4*RADPI;
 
-        double trueSolTime = (double)secofday/60+eqOfTime+4*lng;
+        double trueSolTime = secofday/60+eqOfTime+4*lng;
         modhelper = (int)(trueSolTime/1440);
         trueSolTime-=modhelper*1440;
         double hourangle = ((trueSolTime<0)?trueSolTime/4+180:trueSolTime/4-180)/RADPI;
@@ -81,7 +81,7 @@ int main(int argc, char **argv)
         sx /=length;
         sy /=length;
         sz /=length;
-       printf("%ld %lf %lf %lf \n",(secofday+(int)(timezone*3600))%86400,
+       printf("%lf %lf %lf %lf \n",fmod(secofday+(int)(timezone*3600),86400),
                 90-SolZenith*RADPI,solAzi*RADPI,
                 sx*px+sy*py+sz*pz);
 
