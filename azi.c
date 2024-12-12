@@ -3,13 +3,15 @@
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
-// returns 
-// -second of the day, 
-// -zenith of the sun, 
+// takes a double epoch date
+// returns
+// -second of the day,
+// -zenith of the sun,
 // -azimuth of the sun,
 // -cos(angle of incidence) to panazi/panzen
 
 double RADPI = 57.29577951308237993927;
+
 int main(int argc, char** argv)
 {
     time_t t = time(NULL);
@@ -33,7 +35,7 @@ int main(int argc, char** argv)
     pz /= length;
 
     double epoch = 0.0;
-    while ((c = getopt(argc, argv, "n:e:t:")) != -1)
+    while ((c = getopt(argc, argv, "n:e:t:h")) != -1)
         switch (c)
         {
         case 'e':
@@ -45,12 +47,14 @@ int main(int argc, char** argv)
         case 'n':
             lat = atof(optarg);
             break;
+        case 'h':
         default:
-            abort();
+            printf("usage: date +%%s | azid\n\n-n <lat>\n-e <long>\n-t "
+                   "<gmtoffset seconds>\n");
+            exit(0);
         }
     while (fscanf(stdin, "%lf", &epoch) != EOF)
     {
-
         double julian = epoch / 86400.;
         double secofday = fmod(epoch, 86400);
         double julday = julian + 25569 + 2415018.5;
