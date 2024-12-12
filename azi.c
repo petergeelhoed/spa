@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <math.h>
+#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 // returns second of the day, zenith of the sun, azimuth of the sun, cos(angle of incidence)
@@ -8,6 +9,12 @@
 double RADPI=57.29577951308237993927;
 int main(int argc, char **argv) 
 {
+    time_t t = time(NULL);
+    struct tm lt = {0};
+    localtime_r(&t, &lt);
+    int gmtoff = lt.tm_gmtoff;
+
+
     int c;
     float lng = 4.687;
     float lat = 51.836;
@@ -25,7 +32,6 @@ int main(int argc, char **argv)
 
 
     double epoch = 0.0;
-    float timezone =2;
     while ((c = getopt (argc, argv, "n:e:t:")) != -1)
         switch (c)
         {
@@ -33,7 +39,7 @@ int main(int argc, char **argv)
                 lng = atof(optarg);
                 break;
             case 't':
-                timezone = atof(optarg);
+                gmtoff = atoi(optarg);
                 break;
             case 'n':
                 lat = atof(optarg);
@@ -87,12 +93,12 @@ int main(int argc, char **argv)
         double sz = cos(SolZenith);
         length = sqrt(px*px+pz*pz+py*py);
 
-        sx /=length;
-        sy /=length;
-        sz /=length;
-        printf("%lf %lf %lf %lf \n",fmod(secofday+(int)(timezone*3600),86400),
+        sx /= length;
+        sy /= length;
+        sz /= length;
+        printf("%lf %lf %lf %lf \n",
+                fmod(secofday+gmtoff,86400),
                 90-SolZenith*RADPI,solAzi*RADPI,
                 sx*px+sy*py+sz*pz);
-
     }
 }
