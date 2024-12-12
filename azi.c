@@ -19,7 +19,6 @@ int main(int argc, char** argv)
     localtime_r(&t, &lt);
     int gmtoff = lt.tm_gmtoff;
 
-    int c;
     float lng = 4.687;
     float lat = 51.836;
 
@@ -35,6 +34,7 @@ int main(int argc, char** argv)
     pz /= length;
 
     double epoch = 0.0;
+    int c;
     while ((c = getopt(argc, argv, "n:e:t:h")) != -1)
         switch (c)
         {
@@ -59,12 +59,9 @@ int main(int argc, char** argv)
         double secofday = fmod(epoch, 86400);
         double julday = julian + 25569 + 2415018.5;
         double julcent = (julday - 2451545) / 36525;
-        int modhelper =
-            (int)(280.46646 + julcent * (36000.76983 + julcent * 0.0003032)) /
-            360.;
         double geomMeanLong =
-            ((280.46646 + julcent * (36000.76983 + julcent * 0.0003032)) -
-             modhelper * 360) /
+            fmod((280.46646 + julcent * (36000.76983 + julcent * 0.0003032)),
+                 360) /
             RADPI;
         double geomMeanAnom =
             (357.52911 + julcent * (35999.05029 - 0.0001537 * julcent)) / RADPI;
@@ -107,9 +104,7 @@ int main(int argc, char** argv)
              1.25 * eccentEarth * eccentEarth * sin(2 * geomMeanAnom)) *
             4 * RADPI;
 
-        double trueSolTime = secofday / 60 + eqOfTime + 4 * lng;
-        modhelper = (int)(trueSolTime / 1440);
-        trueSolTime -= modhelper * 1440;
+        double trueSolTime = fmod(secofday / 60 + eqOfTime + 4 * lng, 1440);
         double hourangle = ((trueSolTime < 0) ? trueSolTime / 4 + 180
                                               : trueSolTime / 4 - 180) /
                            RADPI;
