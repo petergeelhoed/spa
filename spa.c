@@ -25,7 +25,6 @@ int main(int argc, char **argv)
         }
     while ( fscanf(stdin,"%ld", &epoch) != EOF)
     {
-
         double julian = epoch/86400.;
         int secofday = epoch%86400;
         double julday = julian + 25569 + 2415018.5;
