@@ -3,14 +3,31 @@
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
-// takes a double epoch date
-// returns
-// -second of the day,
-// -zenith of the sun,
-// -azimuth of the sun,
-// -cos(angle of incidence) to panazi/panzen
 
-double RADPI = 57.29577951308237993927;
+#define RADPI 57.29577951308237993927
+
+// Function to calculate the length of a vector
+double calculate_length(double x, double y, double z)
+{
+    return sqrt(x * x + y * y + z * z);
+}
+
+// Function to normalize a vector
+void normalize_vector(double* x, double* y, double* z)
+{
+    double length = calculate_length(*x, *y, *z);
+    *x /= length;
+    *y /= length;
+    *z /= length;
+}
+
+// Function to print usage information
+void print_usage()
+{
+    printf("usage: date +%%s | azid\n\n-n <lat>\n-e <long>\n-t <gmtoffset "
+           "seconds>\n");
+    exit(EXIT_SUCCESS);
+}
 
 int main(int argc, char** argv)
 {
@@ -22,20 +39,18 @@ int main(int argc, char** argv)
     float lng = 4.687;
     float lat = 51.836;
 
-    // panels
+    // Panel angles
     float panazi = 210 / RADPI;
     float panzen = 10 / RADPI;
     double px = sin(panzen) * cos(panazi);
     double py = sin(panzen) * sin(panazi);
     double pz = cos(panzen);
-    double length = sqrt(px * px + pz * pz + py * py);
-    px /= length;
-    py /= length;
-    pz /= length;
+    normalize_vector(&px, &py, &pz);
 
     double epoch = 0.0;
     int c;
     while ((c = getopt(argc, argv, "n:e:t:h")) != -1)
+    {
         switch (c)
         {
         case 'e':
@@ -49,10 +64,10 @@ int main(int argc, char** argv)
             break;
         case 'h':
         default:
-            printf("usage: date +%%s | azid\n\n-n <lat>\n-e <long>\n-t "
-                   "<gmtoffset seconds>\n");
-            exit(0);
+            print_usage();
         }
+    }
+
     while (fscanf(stdin, "%lf", &epoch) != EOF)
     {
         double julian = epoch / 86400.;
@@ -109,8 +124,8 @@ int main(int argc, char** argv)
                                               : trueSolTime / 4 - 180) /
                            RADPI;
         double SolZenith =
-            (acos(sin(lat / RADPI) * sin(sunDecl) +
-                  cos(lat / RADPI) * cos(sunDecl) * cos(hourangle)));
+            acos(sin(lat / RADPI) * sin(sunDecl) +
+                 cos(lat / RADPI) * cos(sunDecl) * cos(hourangle));
 
         double solAzi = 180 / RADPI;
         double acosArg = ((sin(lat / RADPI) * cos(SolZenith)) - sin(sunDecl)) /
@@ -123,11 +138,8 @@ int main(int argc, char** argv)
         double sx = sin(SolZenith) * cos(solAzi);
         double sy = sin(SolZenith) * sin(solAzi);
         double sz = cos(SolZenith);
-        length = sqrt(px * px + pz * pz + py * py);
+        normalize_vector(&sx, &sy, &sz);
 
-        sx /= length;
-        sy /= length;
-        sz /= length;
         printf("%lf %lf %lf %lf \n",
                fmod(secofday + gmtoff, 86400),
                90 - SolZenith * RADPI,
