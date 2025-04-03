@@ -57,7 +57,11 @@ int main(int argc, char** argv)
 
     while (fscanf(stdin, "%lf", &epoch) != EOF)
     {
-        struct azizen azi = calcazi(epoch, lng, lat);
+        struct azizen azi;
+        azi.epoch = epoch;
+        azi.lng = lng;
+        azi.lat = lat;
+        calcazi(&azi);
 
         printf("%lf %lf %lf %lf \n",
                fmod(azi.secofday + gmtoff, 86400),
