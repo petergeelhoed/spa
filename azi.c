@@ -57,10 +57,7 @@ int main(int argc, char** argv)
 
     while (fscanf(stdin, "%lf", &epoch) != EOF)
     {
-        struct azizen azi;
-        azi.epoch = epoch;
-        azi.lng = lng;
-        azi.lat = lat;
+        struct azizen azi = {epoch, lng, lat, 0.0, 0.0, 0.0, 0.0};
         calcazi(&azi);
 
         printf("%lf %lf %lf %lf \n",
