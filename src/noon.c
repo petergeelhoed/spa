@@ -41,19 +41,19 @@ int main(int argc, char** argv)
         switch (optChar)
         {
         case 'e':
-            if (!parse_double(optarg, &lng))
+            if (parse_double(optarg, &lng))
             {
                 exit(EXIT_FAILURE);
             }
             break;
         case 't':
-            if (!parse_int10(optarg, &gmtoff))
+            if (parse_int10(optarg, &gmtoff))
             {
                 exit(EXIT_FAILURE);
             }
             break;
         case 'n':
-            if (!parse_double(optarg, &lat))
+            if (parse_double(optarg, &lat))
             {
                 exit(EXIT_FAILURE);
             }
