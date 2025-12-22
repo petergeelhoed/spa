@@ -11,7 +11,13 @@ option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # ---------- Library: myazi ----------
-# Add your library sources here
+add_library(myparse
+    src/parseutil.c
+)
+ target_include_directories(myparse
+     PUBLIC
+         ${CMAKE_SOURCE_DIR}/inc
+ )
 add_library(myazi
     src/libmyazi.c
 )
@@ -27,6 +33,7 @@ target_compile_definitions(myazi PRIVATE _GNU_SOURCE)
 # Warnings (GNU/Clang)
 if (CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(myazi PRIVATE -Wall -Wextra -pedantic)
+    target_compile_options(myparse PRIVATE -Wall -Wextra -pedantic)
 endif()
 
 # ---------- Executable: azi ----------
@@ -42,18 +49,11 @@ if (CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(azi PRIVATE -Wall -Wextra -pedantic)
 endif()
 
-# If azi needs the same includes as the library:
-# target_include_directories(azi PRIVATE ${CMAKE_SOURCE_DIR}/include)
-
 # Link against libmyazi and libm (math)
-target_link_libraries(azi PRIVATE myazi m)
-
-# ---------- Optional: install rules ----------
-# Headers: install if you have public headers
-# install(DIRECTORY include/ DESTINATION include)
+target_link_libraries(azi PRIVATE myazi myparse m)
 
 # Library & executable
-install(TARGETS myazi azi
+install(TARGETS myazi myparse azi
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib)
