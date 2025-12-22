@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 200809L
+#include <getopt.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -5,7 +7,7 @@
 #include <unistd.h>
 
 #include "libmyazi.h"
-
+const int SECS_IN_DAY = 86400;
 // Function to print usage information
 void print_usage()
 {
@@ -61,7 +63,7 @@ int main(int argc, char** argv)
         calcazi(&azi);
 
         printf("%lf %lf %lf %lf \n",
-               fmod(azi.secofday + gmtoff, 86400),
+               fmod(azi.secofday + gmtoff, SECS_IN_DAY),
                azi.zenith,
                azi.azimuth,
                azi.cos);
