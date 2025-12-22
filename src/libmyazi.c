@@ -31,6 +31,7 @@ void calcazi(struct azizen* ret)
 
     double julian = ret->epoch / SECS_IN_DAY;
     double secofday = fmod(ret->epoch, SECS_IN_DAY);
+    // NOLINTBEGIN(readability-magic-numbers)
     double julday = julian + 25569 + 2415018.5;
     double julcent = (julday - 2451545) / 36525;
     double geomMeanLong =
@@ -61,9 +62,11 @@ void calcazi(struct azizen* ret)
                        0.5 * vary * vary * sin(4 * geomMeanLong) -
                        1.25 * eccentEarth * eccentEarth * sin(2 * geomMeanAnom)) *
                       4 * RADPI;
+    // NOLINTEND(readability-magic-numbers)
 
-    double trueSolTime = fmod(secofday / 60 + eqOfTime + 4 * ret->lng, 1440);
-    double hourangle = ((trueSolTime < 0) ? trueSolTime / 4 + D180 : trueSolTime / 4 - 180) / RADPI;
+    double trueSolTime = fmod(secofday / SECS_IN_MINUTE + eqOfTime + 4 * ret->lng, MIN_IN_DAY);
+    double hourangle =
+        ((trueSolTime < 0) ? trueSolTime / 4 + D180 : trueSolTime / 4 - D180) / RADPI;
     double SolZenith = acos(sin(ret->lat / RADPI) * sin(sunDecl) +
                             cos(ret->lat / RADPI) * cos(sunDecl) * cos(hourangle));
 
@@ -84,4 +87,23 @@ void calcazi(struct azizen* ret)
     ret->zenith = 90 - SolZenith * RADPI;
     ret->azimuth = solAzi * RADPI;
     ret->cos = solX * panx + solY * pany + solZ * panz;
+}
+
+int epoch_to_iso8601_local(time_t epoch, char* out, size_t out_size)
+// int epoch_to_iso8601_utc(time_t epoch, char* out, size_t out_size)
+{
+    struct tm tm_local;
+    if (out == NULL || out_size < 21)
+    {
+        return -1;
+    }
+    if (localtime_r(&epoch, &tm_local) == NULL)
+    {
+        return -2;
+    }
+    if (strftime(out, out_size, "%Y-%m-%dT%H:%M:%S", &tm_local) == 0)
+    {
+        return -3;
+    }
+    return 0;
 }

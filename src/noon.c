@@ -103,7 +103,14 @@ int main(int argc, char** argv)
             calcazi(&azi);
         }
 
-        printf("%lf %lf %lf %lf\n",
+        char iso[25];
+        if (epoch_to_iso8601_local(azi.epoch, iso, sizeof(iso)) != 0)
+        {
+            exit(EXIT_FAILURE);
+        }
+
+        printf("%s %lf %lf %lf %lf\n",
+               iso,
                azi.epoch,
                fmod(azi.secofday + gmtoff, SECS_IN_DAY),
                prev_epoch == -1. ? 0.0 : azi.epoch - prev_epoch,
