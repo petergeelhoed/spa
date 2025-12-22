@@ -11,10 +11,10 @@
 const int SECS_IN_DAY = 86400;
 const double mylng = 6.687;
 const double mylat = 51.836;
-const double myPanAzi = 210;
-const double myPanZen = 10;
 const int BUF_SIZE = 256;
-
+const double D180 = 180.;
+const double DEG_HOUR = 15.;
+const double SECS_HOUR = 3600.;
 void print_usage()
 {
     printf("usage: date +%%s | azid\n\n-n <lat>\n-e <long>\n-t <gmtoffset "
@@ -34,14 +34,6 @@ int main(int argc, char** argv)
     double lat = mylat;
 
     // Panel angles
-    double panazi = myPanAzi / RADPI;
-    double panzen = myPanZen / RADPI;
-
-    double panx = sinf(panzen) * cosf(panazi);
-    double pany = sinf(panzen) * sinf(panazi);
-    double panz = cosf(panzen);
-    normalize_vector(&panx, &pany, &panz);
-
     double epoch = 0.0;
     int optChar;
     while ((optChar = getopt(argc, argv, "n:e:t:h")) != -1)
@@ -75,6 +67,7 @@ int main(int argc, char** argv)
     char line[BUF_SIZE];
     size_t lineno = 0;
 
+    double prev_epoch = -1;
     while (fgets(line, sizeof line, stdin) != NULL)
     {
         lineno++;
@@ -97,14 +90,27 @@ int main(int argc, char** argv)
             return retVal;
         }
 
+        double prev_azi = -1;
+        double prev_prev_azi = -2;
         struct azizen azi = {epoch, lng, lat, 0.0, 0.0, 0.0, 0.0};
         calcazi(&azi);
+        while (prev_prev_azi != azi.azimuth && prev_azi != azi.azimuth)
+        {
+            double newEpoch =
+                (azi.azimuth - D180) / DEG_HOUR * SECS_HOUR * cos(azi.zenith / D180 * M_PI);
+            azi.epoch -= newEpoch;
 
-        printf("%lf %lf %lf %lf \n",
+            prev_prev_azi = prev_azi;
+            prev_azi = azi.azimuth;
+            calcazi(&azi);
+        }
+
+        printf("%lf %lf %lf %lf\n",
+               azi.epoch,
                fmod(azi.secofday + gmtoff, SECS_IN_DAY),
-               azi.zenith,
-               azi.azimuth,
-               azi.cos);
+               azi.epoch - prev_epoch,
+               azi.azimuth);
+        prev_epoch = azi.epoch;
     }
     return 0;
 }
