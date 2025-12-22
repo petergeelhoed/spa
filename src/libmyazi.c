@@ -7,24 +7,27 @@
 #include "libmyazi.h"
 
 // Function to calculate the length of a vector
-double calculate_length(double x, double y, double z) { return sqrt(x * x + y * y + z * z); }
+double calculate_length(double vec_x, double vec_y, double vec_z)
+{
+    return sqrt(vec_x * vec_x + vec_y * vec_y + vec_z * vec_z);
+}
 
 // Function to normalize a vector
-void normalize_vector(double* x, double* y, double* z)
+void normalize_vector(double* vec_x, double* vec_y, double* vec_z)
 {
-    double length = calculate_length(*x, *y, *z);
-    *x /= length;
-    *y /= length;
-    *z /= length;
+    double length = calculate_length(*vec_x, *vec_y, *vec_z);
+    *vec_x /= length;
+    *vec_y /= length;
+    *vec_z /= length;
 }
 
 void calcazi(struct azizen* ret)
 {
     // Panel angles
-    double px = sin(ret->panzen) * cos(ret->panazi);
-    double py = sin(ret->panzen) * sin(ret->panazi);
-    double pz = cos(ret->panzen);
-    normalize_vector(&px, &py, &pz);
+    double panx = sin(ret->panzen) * cos(ret->panazi);
+    double pany = sin(ret->panzen) * sin(ret->panazi);
+    double panz = cos(ret->panzen);
+    normalize_vector(&panx, &pany, &panz);
 
     double julian = ret->epoch / SECS_IN_DAY;
     double secofday = fmod(ret->epoch, SECS_IN_DAY);
@@ -60,25 +63,25 @@ void calcazi(struct azizen* ret)
                       4 * RADPI;
 
     double trueSolTime = fmod(secofday / 60 + eqOfTime + 4 * ret->lng, 1440);
-    double hourangle = ((trueSolTime < 0) ? trueSolTime / 4 + 180 : trueSolTime / 4 - 180) / RADPI;
+    double hourangle = ((trueSolTime < 0) ? trueSolTime / 4 + D180 : trueSolTime / 4 - 180) / RADPI;
     double SolZenith = acos(sin(ret->lat / RADPI) * sin(sunDecl) +
                             cos(ret->lat / RADPI) * cos(sunDecl) * cos(hourangle));
 
-    double solAzi = 180 / RADPI;
+    double solAzi = D180 / RADPI;
     double acosArg = ((sin(ret->lat / RADPI) * cos(SolZenith)) - sin(sunDecl)) /
                      (cos(ret->lat / RADPI) * sin(SolZenith));
     double aCos = acos(acosArg);
     if (!isnan(aCos))
     {
-        solAzi = (hourangle > 0) ? 180 / RADPI + aCos : 180 / RADPI - aCos;
+        solAzi = (hourangle > 0) ? D180 / RADPI + aCos : 180 / RADPI - aCos;
     }
-    double sx = sin(SolZenith) * cos(solAzi);
-    double sy = sin(SolZenith) * sin(solAzi);
-    double sz = cos(SolZenith);
-    normalize_vector(&sx, &sy, &sz);
+    double solX = sin(SolZenith) * cos(solAzi);
+    double solY = sin(SolZenith) * sin(solAzi);
+    double solZ = cos(SolZenith);
+    normalize_vector(&solX, &solY, &solZ);
 
     ret->secofday = secofday;
     ret->zenith = 90 - SolZenith * RADPI;
     ret->azimuth = solAzi * RADPI;
-    ret->cos = sx * px + sy * py + sz * pz;
+    ret->cos = solX * panx + solY * pany + solZ * panz;
 }
