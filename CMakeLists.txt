@@ -8,6 +8,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # Option to build shared libraries (ON -> .so/.dylib, OFF -> .a)
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # ---------- Library: myazi ----------
 # Add your library sources here

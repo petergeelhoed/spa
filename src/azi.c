@@ -1,4 +1,3 @@
-#define _POSIX_C_SOURCE 200809L
 #include <getopt.h>
 #include <math.h>
 #include <stdio.h>
@@ -31,9 +30,9 @@ int main(int argc, char** argv)
     float panazi = 210 / RADPI;
     float panzen = 10 / RADPI;
 
-    double px = sin(panzen) * cos(panazi);
-    double py = sin(panzen) * sin(panazi);
-    double pz = cos(panzen);
+    double px = sinf(panzen) * cosf(panazi);
+    double py = sinf(panzen) * sinf(panazi);
+    double pz = cosf(panzen);
     normalize_vector(&px, &py, &pz);
 
     double epoch = 0.0;
