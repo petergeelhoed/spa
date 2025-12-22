@@ -90,8 +90,8 @@ int main(int argc, char** argv)
             return retVal;
         }
 
-        double prev_azi = -1;
-        double prev_prev_azi = -2;
+        double prev_azi = -1.;
+        double prev_prev_azi = -2.;
         struct azizen azi = {epoch, lng, lat, 0.0, 0.0, 0.0, 0.0};
         calcazi(&azi);
         while (prev_prev_azi != azi.azimuth && prev_azi != azi.azimuth)
@@ -108,7 +108,7 @@ int main(int argc, char** argv)
         printf("%lf %lf %lf %lf\n",
                azi.epoch,
                fmod(azi.secofday + gmtoff, SECS_IN_DAY),
-               azi.epoch - prev_epoch,
+               prev_epoch == -1. ? 0.0 : azi.epoch - prev_epoch,
                azi.azimuth);
         prev_epoch = azi.epoch;
     }
