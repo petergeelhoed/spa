@@ -1,13 +1,22 @@
+#include <errno.h>
 #include <getopt.h>
+#include <limits.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include <unistd.h>
 
 #include "libmyazi.h"
 const int SECS_IN_DAY = 86400;
-// Function to print usage information
+const double mylng = 6.687;
+const double mylat = 51.836;
+const double myPanAzi = 210;
+const double myPanZen = 10;
+const int DECIMAL = 10;
+const int BUF_SIZE = 256;
+
 void print_usage()
 {
     printf("usage: date +%%s | azid\n\n-n <lat>\n-e <long>\n-t <gmtoffset "
@@ -15,40 +24,119 @@ void print_usage()
     exit(EXIT_SUCCESS);
 }
 
+static int parse_int10(const char* string, int* out)
+{
+    if (!string || !out)
+    {
+        return -1;
+    }
+
+    errno = 0;
+    char* end = NULL;
+    long val = strtol(string, &end, DECIMAL);
+
+    if (end == string)
+    {
+        return -2;
+    }
+
+    if (errno == ERANGE || val < INT_MIN || val > INT_MAX)
+    {
+        return -3;
+    }
+
+    while (*end == ' ' || *end == '\t' || *end == '\n' || *end == '\r' || *end == '\f' ||
+           *end == '\v')
+    {
+        end++;
+    }
+    if (*end != '\0')
+    {
+        return -4;
+    }
+
+    *out = (int)val;
+    return 0;
+}
+
+static int parse_double(const char* string, double* out)
+{
+    if (!string || !out)
+    {
+        return -1;
+    }
+
+    errno = 0;
+    char* end = NULL;
+    double val = strtod(string, &end);
+
+    if (end == string)
+    {
+        return -2;
+    }
+
+    if (errno == ERANGE)
+    {
+        return -3;
+    }
+
+    while (*end == ' ' || *end == '\t' || *end == '\n' || *end == '\r' || *end == '\f' ||
+           *end == '\v')
+    {
+        end++;
+    }
+    if (*end != '\0')
+    {
+        return -4;
+    }
+
+    *out = val;
+    return 0;
+}
+
 int main(int argc, char** argv)
 {
 
-    time_t t = time(NULL);
-    struct tm lt = {0};
-    localtime_r(&t, &lt);
-    int gmtoff = lt.tm_gmtoff;
+    time_t now = time(NULL);
+    struct tm localNow = {0};
+    localtime_r(&now, &localNow);
+    int gmtoff = localNow.tm_gmtoff;
 
-    float lng = 4.687;
-    float lat = 51.836;
+    double lng = mylng;
+    double lat = mylat;
 
     // Panel angles
-    float panazi = 210 / RADPI;
-    float panzen = 10 / RADPI;
+    double panazi = myPanAzi / RADPI;
+    double panzen = myPanZen / RADPI;
 
-    double px = sinf(panzen) * cosf(panazi);
-    double py = sinf(panzen) * sinf(panazi);
-    double pz = cosf(panzen);
-    normalize_vector(&px, &py, &pz);
+    double panx = sinf(panzen) * cosf(panazi);
+    double pany = sinf(panzen) * sinf(panazi);
+    double panz = cosf(panzen);
+    normalize_vector(&panx, &pany, &panz);
 
     double epoch = 0.0;
-    int c;
-    while ((c = getopt(argc, argv, "n:e:t:h")) != -1)
+    int optChar;
+    while ((optChar = getopt(argc, argv, "n:e:t:h")) != -1)
     {
-        switch (c)
+        switch (optChar)
         {
         case 'e':
-            lng = atof(optarg);
+            if (!parse_double(optarg, &lng))
+            {
+                exit(EXIT_FAILURE);
+            }
             break;
         case 't':
-            gmtoff = atoi(optarg);
+            if (!parse_int10(optarg, &gmtoff))
+            {
+                exit(EXIT_FAILURE);
+            }
             break;
         case 'n':
-            lat = atof(optarg);
+            if (!parse_double(optarg, &lat))
+            {
+                exit(EXIT_FAILURE);
+            }
             break;
         case 'h':
         default:
@@ -56,8 +144,31 @@ int main(int argc, char** argv)
         }
     }
 
-    while (fscanf(stdin, "%lf", &epoch) != EOF)
+    char line[BUF_SIZE];
+    size_t lineno = 0;
+
+    while (fgets(line, sizeof line, stdin) != NULL)
     {
+        lineno++;
+
+        // Trim leading whitespace
+        char* parseChar = line;
+        while (*parseChar && (*parseChar == ' ' || *parseChar == '\t' || *parseChar == '\r' ||
+                              *parseChar == '\n'))
+        {
+            parseChar++;
+        }
+        if (*parseChar == '\0')
+        {
+            continue;
+        }
+
+        int retVal = parse_double(parseChar, &epoch);
+        if (retVal != 0)
+        {
+            return retVal;
+        }
+
         struct azizen azi = {epoch, lng, lat, 0.0, 0.0, 0.0, 0.0};
         calcazi(&azi);
 
