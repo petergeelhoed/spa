@@ -72,11 +72,7 @@ int main(int argc, char** argv)
 
         // Trim leading whitespace
         char* parseChar = line;
-        while (*parseChar && (*parseChar == ' ' || *parseChar == '\t' || *parseChar == '\r' ||
-                              *parseChar == '\n'))
-        {
-            parseChar++;
-        }
+        skip_white(&parseChar);
         if (*parseChar == '\0')
         {
             continue;
@@ -89,7 +85,7 @@ int main(int argc, char** argv)
         }
 
         double prev_azi = -1.;
-        double prev_prev_azi = -2.;
+        double prev_prev_azi = prev_azi - 1.;
         struct azizen azi = {epoch, lng, lat, 0.0, 0.0, 0.0, 0.0, D180, 0.0};
         calcazi(&azi);
         while (prev_prev_azi != azi.azimuth && prev_azi != azi.azimuth)
@@ -103,7 +99,7 @@ int main(int argc, char** argv)
             calcazi(&azi);
         }
 
-        char iso[25];
+        char iso[DATE_BUF_SIZE];
         if (epoch_to_iso8601_local(azi.epoch, iso, sizeof(iso)) != 0)
         {
             exit(EXIT_FAILURE);

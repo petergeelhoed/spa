@@ -76,7 +76,7 @@ void calcazi(struct azizen* ret)
     double aCos = acos(acosArg);
     if (!isnan(aCos))
     {
-        solAzi = (hourangle > 0) ? D180 / RADPI + aCos : 180 / RADPI - aCos;
+        solAzi = (hourangle > 0) ? D180 / RADPI + aCos : D180 / RADPI - aCos;
     }
     double solX = sin(SolZenith) * cos(solAzi);
     double solY = sin(SolZenith) * sin(solAzi);
@@ -84,7 +84,7 @@ void calcazi(struct azizen* ret)
     normalize_vector(&solX, &solY, &solZ);
 
     ret->secofday = secofday;
-    ret->zenith = 90 - SolZenith * RADPI;
+    ret->zenith = D180 / 2 - SolZenith * RADPI;
     ret->azimuth = solAzi * RADPI;
     ret->cos = solX * panx + solY * pany + solZ * panz;
 }
@@ -93,7 +93,7 @@ int epoch_to_iso8601_local(time_t epoch, char* out, size_t out_size)
 // int epoch_to_iso8601_utc(time_t epoch, char* out, size_t out_size)
 {
     struct tm tm_local;
-    if (out == NULL || out_size < 21)
+    if (out == NULL || out_size < DATE_BUF_SIZE)
     {
         return -1;
     }

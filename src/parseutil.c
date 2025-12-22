@@ -5,6 +5,19 @@
 #include <stdlib.h>
 #include <string.h>
 
+void skip_white(char** parseChar)
+{
+    if (!parseChar || !*parseChar)
+    {
+        return;
+    }
+
+    while (**parseChar == ' ' || **parseChar == '\t' || **parseChar == '\r' || **parseChar == '\n')
+    {
+        (*parseChar)++;
+    }
+}
+
 int parse_int10(const char* string, int* out)
 {
     if (!string || !out)
