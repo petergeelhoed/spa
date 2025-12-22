@@ -8,7 +8,6 @@
 #include "libmyazi.h"
 #include "parseutil.h"
 
-const int SECS_IN_DAY = 86400;
 const double mylng = 6.687;
 const double mylat = 51.836;
 const int BUF_SIZE = 256;
@@ -92,7 +91,7 @@ int main(int argc, char** argv)
 
         double prev_azi = -1.;
         double prev_prev_azi = -2.;
-        struct azizen azi = {epoch, lng, lat, 0.0, 0.0, 0.0, 0.0};
+        struct azizen azi = {epoch, lng, lat, 0.0, 0.0, 0.0, 0.0, D180, 0.0};
         calcazi(&azi);
         while (prev_prev_azi != azi.azimuth && prev_azi != azi.azimuth)
         {

@@ -8,7 +8,6 @@
 #include "libmyazi.h"
 #include "parseutil.h"
 
-const int SECS_IN_DAY = 86400;
 const double mylng = 6.687;
 const double mylat = 51.836;
 const double myPanAzi = 210;
@@ -36,11 +35,6 @@ int main(int argc, char** argv)
     // Panel angles
     double panazi = myPanAzi / RADPI;
     double panzen = myPanZen / RADPI;
-
-    double panx = sinf(panzen) * cosf(panazi);
-    double pany = sinf(panzen) * sinf(panazi);
-    double panz = cosf(panzen);
-    normalize_vector(&panx, &pany, &panz);
 
     double epoch = 0.0;
     int optChar;
@@ -97,7 +91,7 @@ int main(int argc, char** argv)
             return retVal;
         }
 
-        struct azizen azi = {epoch, lng, lat, 0.0, 0.0, 0.0, 0.0};
+        struct azizen azi = {epoch, lng, lat, 0.0, 0.0, 0.0, 0.0, panazi, panzen};
         calcazi(&azi);
 
         printf("%lf %lf %lf %lf \n",

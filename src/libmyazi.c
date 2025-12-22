@@ -21,15 +21,13 @@ void normalize_vector(double* x, double* y, double* z)
 void calcazi(struct azizen* ret)
 {
     // Panel angles
-    float panazi = 210 / RADPI;
-    float panzen = 10 / RADPI;
-    double px = sin(panzen) * cos(panazi);
-    double py = sin(panzen) * sin(panazi);
-    double pz = cos(panzen);
+    double px = sin(ret->panzen) * cos(ret->panazi);
+    double py = sin(ret->panzen) * sin(ret->panazi);
+    double pz = cos(ret->panzen);
     normalize_vector(&px, &py, &pz);
 
-    double julian = ret->epoch / 86400.;
-    double secofday = fmod(ret->epoch, 86400);
+    double julian = ret->epoch / SECS_IN_DAY;
+    double secofday = fmod(ret->epoch, SECS_IN_DAY);
     double julday = julian + 25569 + 2415018.5;
     double julcent = (julday - 2451545) / 36525;
     double geomMeanLong =
