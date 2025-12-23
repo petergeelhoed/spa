@@ -8,11 +8,6 @@
 #include "libmyazi.h"
 #include "parseutil.h"
 
-const double mylng = 6.687;
-const double mylat = 51.836;
-const int BUF_SIZE = 256;
-const double DEG_HOUR = 15.;
-const double SECS_HOUR = 3600.;
 void print_usage()
 {
     printf("usage: date +%%s | azid\n\n-n <lat>\n-e <long>\n-t <gmtoffset "
