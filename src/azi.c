@@ -8,7 +8,7 @@
 #include "libmyazi.h"
 #include "parseutil.h"
 
-const double mylng = 6.687;
+const double mylng = 4.687;
 const double mylat = 51.836;
 const double myPanAzi = 210;
 const double myPanZen = 10;
