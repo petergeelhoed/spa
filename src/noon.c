@@ -61,7 +61,6 @@ int main(int argc, char** argv)
 
     char line[BUF_SIZE];
     size_t lineno = 0;
-
     double prev_epoch = -1;
     while (fgets(line, sizeof line, stdin) != NULL)
     {
@@ -84,19 +83,32 @@ int main(int argc, char** argv)
         const double epsilon = 1e-7;
         struct azizen azi = {epoch, lng, lat, 0.0, 0.0, 0.0, 0.0, D180, 0.0};
         calcazi(&azi);
-        while (fabs(D180 - azi.azimuth) > epsilon)
+        double err_deg = (azi.azimuth - D180);
+        double prev_err_deg = 0.0;
+        double prev_epoch = 0.0;
+        printf("%lf\n", epoch);
+
+        while (fabs(err_deg) > epsilon)
         {
-            printf("%.6lf %.6lf\n", azi.epoch, azi.azimuth);
-            double err_deg = (azi.azimuth - D180);
+            prev_epoch = azi.epoch;
             double cosz = cos(azi.zenith * M_PI / D180);
             double newEpoch = err_deg * SECS_HOUR * cosz / DEG_HOUR;
-            if (fabs(err_deg) < 1e-3)
-            {
-                newEpoch *= 0.5;
-            }
             azi.epoch -= newEpoch;
 
             calcazi(&azi);
+            prev_err_deg = err_deg;
+            err_deg = azi.azimuth - D180;
+            printf("%.6lf %.6lf %.6lf %.6lf %.6lf\n",
+                   azi.epoch,
+                   azi.azimuth,
+                   err_deg,
+                   prev_err_deg,
+                   err_deg + prev_err_deg);
+
+            if (fabs(prev_err_deg + err_deg) < epsilon)
+            {
+                break;
+            }
         }
 
         char iso[DATE_BUF_SIZE];
