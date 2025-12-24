@@ -79,18 +79,15 @@ int main(int argc, char** argv)
             return retVal;
         }
 
-        double prev_azi = -1.;
-        double prev_prev_azi = prev_azi - 1.;
+        const double epsilon = 1e-6;
         struct azizen azi = {epoch, lng, lat, 0.0, 0.0, 0.0, 0.0, D180, 0.0};
         calcazi(&azi);
-        while (prev_prev_azi != azi.azimuth && prev_azi != azi.azimuth)
+        while (fabs(D180 - azi.azimuth) > epsilon)
         {
             double newEpoch =
                 (azi.azimuth - D180) / DEG_HOUR * SECS_HOUR * cos(azi.zenith / D180 * M_PI);
             azi.epoch -= newEpoch;
 
-            prev_prev_azi = prev_azi;
-            prev_azi = azi.azimuth;
             calcazi(&azi);
         }
 
