@@ -9,6 +9,7 @@
 #include "libmyazi.h"
 #include "parseutil.h"
 
+const double HALF = 0.5;
 void print_usage()
 {
     printf("usage: date +%%s | azid\n\n-n <lat>\n-e <long>\n-t <gmtoffset "
@@ -61,7 +62,7 @@ int main(int argc, char** argv)
 
     char line[BUF_SIZE];
     size_t lineno = 0;
-    double prev_epoch = -1;
+    double prev_epoch = -1.0;
     while (fgets(line, sizeof line, stdin) != NULL)
     {
         lineno++;
@@ -85,30 +86,23 @@ int main(int argc, char** argv)
         calcazi(&azi);
         double err_deg = (azi.azimuth - D180);
         double prev_err_deg = 0.0;
-        double prev_epoch = 0.0;
-        printf("%lf\n", epoch);
 
-        while (fabs(err_deg) > epsilon)
+        double factor = HALF;
+        while (fabs(err_deg) > epsilon) // && !(fabs(prev_err_deg + err_deg) < epsilon))
         {
-            prev_epoch = azi.epoch;
+
             double cosz = cos(azi.zenith * M_PI / D180);
             double newEpoch = err_deg * SECS_HOUR * cosz / DEG_HOUR;
+            if (fabs(prev_err_deg + err_deg) < epsilon)
+            {
+                newEpoch *= factor;
+                factor *= HALF;
+            }
             azi.epoch -= newEpoch;
 
             calcazi(&azi);
             prev_err_deg = err_deg;
             err_deg = azi.azimuth - D180;
-            printf("%.6lf %.6lf %.6lf %.6lf %.6lf\n",
-                   azi.epoch,
-                   azi.azimuth,
-                   err_deg,
-                   prev_err_deg,
-                   err_deg + prev_err_deg);
-
-            if (fabs(prev_err_deg + err_deg) < epsilon)
-            {
-                break;
-            }
         }
 
         char iso[DATE_BUF_SIZE];
