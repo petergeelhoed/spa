@@ -10,6 +10,16 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+
+add_compile_options(
+  -ffp-contract=off            # disable FMA contractions (changes rounding)
+  -fexcess-precision=standard  # consistent intermediate precision
+  -fno-fast-math               # keep IEEE semantics; avoid reassociation etc.
+  -fno-associative-math
+  -fno-reciprocal-math
+  -fno-unsafe-math-optimizations
+)
+
 # ---------- Library: myazi ----------
 add_library(myparse
     src/parseutil.c
