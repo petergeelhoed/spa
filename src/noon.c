@@ -81,27 +81,17 @@ int main(int argc, char** argv)
             return retVal;
         }
 
-        const double epsilon = 1e-7;
+        const double epsilon = 1e-4;
         struct azizen azi = {epoch, lng, lat, 0.0, 0.0, 0.0, 0.0, D180, 0.0};
         calcazi(&azi);
         double err_deg = (azi.azimuth - D180);
-        double prev_err_deg = 0.0;
-
-        double factor = HALF;
-        while (fabs(err_deg) > epsilon) // && !(fabs(prev_err_deg + err_deg) < epsilon))
+        while (fabs(err_deg) > epsilon)
         {
 
             double cosz = cos(azi.zenith * M_PI / D180);
             double newEpoch = err_deg * SECS_HOUR * cosz / DEG_HOUR;
-            if (fabs(prev_err_deg + err_deg) < epsilon)
-            {
-                newEpoch *= factor;
-                factor *= HALF;
-            }
             azi.epoch -= newEpoch;
-
             calcazi(&azi);
-            prev_err_deg = err_deg;
             err_deg = azi.azimuth - D180;
         }
 
@@ -111,7 +101,7 @@ int main(int argc, char** argv)
             exit(EXIT_FAILURE);
         }
 
-        printf("%s %lf %lf %lf %lf\n",
+        printf("%s %.3lf %.3lf %.3lf %.3lf\n",
                iso,
                azi.epoch,
                fmod(azi.secofday + gmtoff, SECS_IN_DAY),
