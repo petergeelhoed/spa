@@ -81,16 +81,17 @@ int main(int argc, char** argv)
             return retVal;
         }
 
-        const double epsilon = 1e-4;
+        const double epsilon = 1e-3;
         struct azizen azi = {epoch, lng, lat, 0.0, 0.0, 0.0, 0.0, D180, 0.0};
         calcazi(&azi);
         double err_deg = (azi.azimuth - D180);
-        while (fabs(err_deg) > epsilon)
+        double stepEpoch = 1;
+        while (fabs(stepEpoch) > epsilon)
         {
 
-            double cosz = cos(azi.zenith * M_PI / D180);
-            double newEpoch = err_deg * SECS_HOUR * cosz / DEG_HOUR;
-            azi.epoch -= newEpoch;
+            double cosz = cos(azi.zenith / RADPI);
+            stepEpoch = err_deg * SECS_HOUR * cosz / DEG_HOUR;
+            azi.epoch -= stepEpoch;
             calcazi(&azi);
             err_deg = azi.azimuth - D180;
         }
