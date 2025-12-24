@@ -1,4 +1,5 @@
 #include <getopt.h>
+#include <locale.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,6 +18,7 @@ void print_usage()
 
 int main(int argc, char** argv)
 {
+    (void)setlocale(LC_NUMERIC, "C");
 
     time_t now = time(NULL);
     struct tm localNow = {0};
@@ -79,13 +81,19 @@ int main(int argc, char** argv)
             return retVal;
         }
 
-        const double epsilon = 1e-6;
+        const double epsilon = 1e-7;
         struct azizen azi = {epoch, lng, lat, 0.0, 0.0, 0.0, 0.0, D180, 0.0};
         calcazi(&azi);
         while (fabs(D180 - azi.azimuth) > epsilon)
         {
-            double newEpoch =
-                (azi.azimuth - D180) / DEG_HOUR * SECS_HOUR * cos(azi.zenith / D180 * M_PI);
+            printf("%.6lf %.6lf\n", azi.epoch, azi.azimuth);
+            double err_deg = (azi.azimuth - D180);
+            double cosz = cos(azi.zenith * M_PI / D180);
+            double newEpoch = err_deg * SECS_HOUR * cosz / DEG_HOUR;
+            if (fabs(err_deg) < 1e-3)
+            {
+                newEpoch *= 0.5;
+            }
             azi.epoch -= newEpoch;
 
             calcazi(&azi);

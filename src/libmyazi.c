@@ -90,7 +90,6 @@ void calcazi(struct azizen* ret)
 }
 
 int epoch_to_iso8601_local(time_t epoch, char* out, size_t out_size)
-// int epoch_to_iso8601_utc(time_t epoch, char* out, size_t out_size)
 {
     struct tm tm_local;
     if (out == NULL || out_size < DATE_BUF_SIZE)
