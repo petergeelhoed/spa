@@ -50,6 +50,10 @@ endif()
 add_executable(azi
     src/azi.c
 )
+add_executable(sun
+    src/sun.c
+)
+
 add_executable(noon
     src/noon.c
 )
@@ -57,16 +61,19 @@ add_executable(noon
 # Define GNU extensions for the executable as well
 target_compile_definitions(azi PRIVATE _GNU_SOURCE)
 target_compile_definitions(noon PRIVATE _GNU_SOURCE)
+target_compile_definitions(sun PRIVATE _GNU_SOURCE)
 
 # Warnings (GNU/Clang)
 if (CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(azi PRIVATE -Wall -Wextra -pedantic)
     target_compile_options(noon PRIVATE -Wall -Wextra -pedantic)
+    target_compile_options(sun PRIVATE -Wall -Wextra -pedantic)
 endif()
 
 # Link against libmyazi and libm (math)
 target_link_libraries(azi PRIVATE myazi myparse m)
 target_link_libraries(noon PRIVATE myazi myparse m)
+target_link_libraries(sun PRIVATE myazi myparse m)
 
 # Library & executable
 install(TARGETS myazi myparse azi noon
