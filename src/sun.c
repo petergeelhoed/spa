@@ -84,11 +84,7 @@ int main(int argc, char** argv)
         struct azizen azi = {epoch, lng, lat, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
         calcazi(&azi);
 
-        printf("%lf %lf %lf %lf \n",
-               fmod(azi.secofday + gmtoff, SECS_IN_DAY),
-               azi.zenith,
-               azi.azimuth,
-               azi.cos);
+        printf("%lf %lf %lf\n", fmod(azi.secofday + gmtoff, SECS_IN_DAY), azi.zenith, azi.azimuth);
     }
     return 0;
 }
